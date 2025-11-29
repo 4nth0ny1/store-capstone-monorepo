@@ -56,14 +56,16 @@ pipeline {
     }
 
     post {
+        always {
+            echo 'Jenkins pipeline finished (success or failure).'
+            // Publish JUnit test results from the backend
+            junit 'backend/target/surefire-reports/*.xml'
+        }
         success {
             echo 'Pipeline completed successfully.'
         }
         failure {
             echo 'Pipeline failed. Check the logs for more details.'
-        }
-        always {
-            echo 'Jenkins pipeline finished (success or failure).'
         }
     }
 }
