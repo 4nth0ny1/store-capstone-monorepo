@@ -16,6 +16,7 @@ public class Inventory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // adding comment so i can push
     // Many inventory rows belong to ONE store
     @ManyToOne
     @JoinColumn(name = "store_id", nullable = false)
