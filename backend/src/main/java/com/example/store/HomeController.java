@@ -13,6 +13,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "You're at home bro! Go to the api/products page to see some products";
+        return "Store backend is running. Try /api/products";
     }
 }
