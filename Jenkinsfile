@@ -28,16 +28,12 @@ pipeline {
         stage('Frontend - Install & Build') {
             steps {
                 dir('frontend') {
-                    echo 'Installing frontend dependencies...'
+                    echo 'Cleaning old node_modules and lockfile (Jenkins Linux env)...'
                     sh '''
-                    if [ -f package-lock.json ]; then
-                      npm ci
-                    else
-                      npm install
-                    fi
+                    rm -rf node_modules package-lock.json
+                    npm install
+                    npm run build
                     '''
-                    echo 'Building frontend (Vite)...'
-                    sh 'npm run build'
                 }
             }
         }
