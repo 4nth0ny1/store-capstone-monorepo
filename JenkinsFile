@@ -1,15 +1,12 @@
 pipeline {
-    // Use any Linux agent (you can change this label for your Jenkins setup)
     agent any
 
     options {
-        // Keep the console log a bit cleaner
         skipDefaultCheckout(true)
         timestamps()
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 echo 'Checking out source code...'
@@ -22,8 +19,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo 'Running backend Maven build (clean verify)...'
-                    // Uses the Maven wrapper that lives in backend/
-                    sh 'chmod +x mvnw'
+                    sh 'chmod +x mvnw || true'
                     sh './mvnw -B clean verify'
                 }
             }
@@ -33,7 +29,6 @@ pipeline {
             steps {
                 dir('frontend') {
                     echo 'Installing frontend dependencies...'
-                    // If npm ci fails (e.g. no package-lock), fall back to npm install
                     sh '''
                     if [ -f package-lock.json ]; then
                       npm ci
