@@ -40,11 +40,19 @@ pipeline {
 
         stage('Docker Build Images') {
             steps {
-                echo 'Building Docker images for backend and frontend...'
-                sh 'docker build -t store-backend:latest ./backend'
-                sh 'docker build -t store-frontend:latest ./frontend'
+                echo 'Building Docker images for backend and frontend (if docker is available)...'
+                sh '''
+                if command -v docker >/dev/null 2>&1; then
+                echo "Docker CLI found. Building images..."
+                docker build -t store-backend:latest ./backend
+                docker build -t store-frontend:latest ./frontend
+                else
+                echo "Docker CLI not found in Jenkins agent. Skipping Docker image build."
+                fi
+                '''
             }
         }
+
     }
 
     post {
