@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: store-backend
+    ports:
+      - "8080:8080"
+    # If you later add env vars, put them here:
+    # environment:
+    #   - SPRING_PROFILES_ACTIVE=docker
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: store-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
