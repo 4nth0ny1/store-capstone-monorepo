@@ -43,11 +43,16 @@ pipeline {
         stage('Frontend - Install & Build') {
             steps {
                 dir("${FRONTEND_DIR}") {
-                    sh 'npm ci'
+                    // Clean just to be safe
+                    sh 'rm -rf node_modules'
+
+                    // Use npm install instead of npm ci
+                    sh 'npm install'
                     sh 'npm run build'
                 }
             }
         }
+
 
         stage('Docker Compose - Build Images') {
             steps {
