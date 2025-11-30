@@ -1,14 +1,18 @@
 pipeline {
     agent any
 
+    options {
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+    }
+
     tools {
-        // Make sure these names match the tools you configured in Jenkins
+        // These names MUST match what you configured in Global Tool Configuration
         maven  'Maven3'
         nodejs 'Node18'
     }
 
     environment {
-        // Just to keep things explicit
         BACKEND_DIR  = 'backend'
         FRONTEND_DIR = 'frontend'
         COMPOSE_FILE = 'docker-compose.yml'
@@ -24,7 +28,14 @@ pipeline {
         stage('Backend - Build & Test') {
             steps {
                 dir("${BACKEND_DIR}") {
-                    sh 'mvn clean test'
+                    // -B = batch mode (better for CI logs)
+                    sh 'mvn -B clean test'
+                }
+            }
+            post {
+                always {
+                    // Publish JUnit test results so Jenkins shows them nicely
+                    junit "${BACKEND_DIR}/target/surefire-reports/*.xml"
                 }
             }
         }
@@ -46,15 +57,16 @@ pipeline {
 
         stage('Docker Compose - Smoke Test') {
             steps {
-                // Bring up the stack
+                // Start the stack
                 sh "docker compose -f ${COMPOSE_FILE} up -d"
 
-                // Give the backend a moment to start
+                // Give backend time to come up
                 sh 'sleep 20'
 
-                // Simple health check: hit the products endpoint
+                // Simple health check against backend
                 sh '''
                     set -e
+                    echo "Running smoke test against backend..."
                     curl -f http://localhost:8080/api/products || {
                         echo "Smoke test failed!"
                         exit 1
@@ -66,7 +78,7 @@ pipeline {
 
     post {
         always {
-            // Always tear down containers so Jenkins agent stays clean
+            // Bring containers down so the agent stays clean
             sh "docker compose -f ${COMPOSE_FILE} down || true"
         }
     }
